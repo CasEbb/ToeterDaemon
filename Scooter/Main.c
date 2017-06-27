@@ -95,6 +95,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 {
 	g_hInstance = hInstance;
 
+	HANDLE hMutex = CreateMutex(NULL, TRUE, L"ScooterMutex");
+	if (GetLastError() == ERROR_ALREADY_EXISTS) {
+		MessageBox(NULL, L"Ik draai al!", L"Scooter", MB_ICONINFORMATION | MB_OK);
+		return 1;
+	}
+
 	CreateMessageWindow();
 	CreateNotifyIcon();
 
