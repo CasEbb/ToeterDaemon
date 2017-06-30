@@ -14,6 +14,11 @@ HINSTANCE g_hInstance;
 HWND g_hWnd;
 NOTIFYICONDATA g_nid;
 
+VOID Toeter()
+{
+	PlaySound(MAKEINTRESOURCE(IDR_TOETER), NULL, SND_ASYNC | SND_RESOURCE);
+}
+
 VOID NextSong()
 {
 	INPUT ip;
@@ -22,7 +27,8 @@ VOID NextSong()
 	ip.ki.wVk = VK_MEDIA_NEXT_TRACK;
 
 	SendInput(1, &ip, sizeof(ip));
-	PlaySound(MAKEINTRESOURCE(IDR_TOETER), NULL, SND_ASYNC | SND_RESOURCE);
+
+	Toeter();
 }
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
@@ -91,6 +97,15 @@ VOID DestroyNotifyIcon()
 	Shell_NotifyIcon(NIM_DELETE, &g_nid);
 }
 
+LRESULT CALLBACK KeyboardHook(int code, WPARAM wParam, LPARAM lParam)
+{
+	if (wParam == VK_MEDIA_NEXT_TRACK) {
+		Toeter();
+	}
+
+	return 0;
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
 {
 	g_hInstance = hInstance;
@@ -105,6 +120,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	CreateNotifyIcon();
 
 	RegisterHotKey(g_hWnd, HK_NEXT_SONG, MOD_ALT, VK_RIGHT);
+
+	SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardHook, NULL, 0);
 
 	MSG Msg;
 	while (GetMessage(&Msg, NULL, 0, 0)) {
